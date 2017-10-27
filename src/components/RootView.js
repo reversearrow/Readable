@@ -1,43 +1,75 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom'
 import * as API from '../utils/api.js'
-import { addPost } from '../actions/'
-import { connect } from 'react-redux';
+import { addPost, sortPosts} from '../actions/'
+import { connect} from 'react-redux';
 import sortBy from 'sort-by'
+import { v4 } from 'uuid'
+import serializeForm from 'form-serialize'
 
 
 function DisplayCatagories(props){
-  return (
-    <div>
-      <h3> Catagories </h3>
-      {
-        props.catagories.map((catagory) => (
-          <Link to={`${catagory.path}`}><li key={`${catagory.name}`}>{catagory.name}</li></Link>
+  if(props.catagories){
+    return (
+      <div>
+        <h3> Catagories </h3>
+        {
+          props.catagories.map((catagory) => (
+            <div key={catagory.name}>
+              <Link to={catagory.path}><li>{catagory.name}</li></Link>
+            </div>
         ))
-      }
-    </div>
-  )
+        }
+      </div>
+    )}
 }
 
 
 function DisplayAllPosts(props){
+  if(props.posts){
   return (
     <div>
       <h3> Top Posts </h3>
-        <select value={props.default} onChange={props.sort}>
-          <option value="highvotescore">Highest Vote Score</option>
-          <option value="timestamp">Time</option>
+        <select onChange={props.sort}>
+          <option value="BY_HIGHESTVOTE">Highest Vote Score</option>
+          <option value="BY_TIMESTAMP">Time</option>
         </select>
       {
         props.posts.map((post) => (
-          <div>
-            <Link to={`${post.id}`}>
-              <h4 key={`${post.id}`}>{post.title}</h4>
+          <div key={post.id}>
+            <Link to={post.id}>
+              <li >{post.title}</li>
             </Link>
             <h5>{post.body}</h5>
           </div>
       ))
       }
+    </div>
+  )}
+}
+
+function AddPost(props){
+  return(
+    <div>
+      <button onClick={props.renderForm}>AddPost</button>
+    </div>
+  )
+}
+
+function DisplayForm(props){
+  return(
+    <div>
+      <form  id="user-data" onSubmit={props.handleSubmit}>
+          <input type="text" name="title" placeholder="title"></input>
+          <input type="text" name="body" placeholder="body"></input>
+          <input type="text" name="author" placeholder="author"></input>
+          <select name="catagory">
+            <option>react</option>
+            <option>redux</option>
+            <option>udacity</option>
+          </select>
+          <input type="submit" value="Submit" />
+      </form>
     </div>
   )
 }
@@ -45,9 +77,8 @@ function DisplayAllPosts(props){
 class RootView extends Component {
     state = {
     catagories: [],
-    posts: []
+    displayForm: false
   }
-
 
   componentDidMount(){
     API.getCatagories().then(catagories => this.setState({ catagories }))
@@ -56,23 +87,46 @@ class RootView extends Component {
     ))
   }
 
-  sortByHighScore(event){
-    console.log(event.target.value)
+  renderForm = () => {
+    if(this.state.displayForm){
+      this.setState({
+        displayForm: false
+      })}
+    else{
+      this.setState({
+        displayForm: true
+      })}
+  }
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+    const uuidv4 = v4
+    const values = serializeForm(event.target, {hash: true})
+    values["timestamp"] = Date.now()
+    values["id"] = uuidv4()
+    API.addPost(values).then((d) =>
+      (this.props.dispatch(addPost(d)))
+    )
   }
 
   render(){
-    const defaultSort = 'highvotescore'
     return (
       <div>
         <DisplayCatagories catagories={this.state.catagories}/>
-        <DisplayAllPosts posts={this.props.posts} default={"highvotescore"} sort={this.sortByHighScore}/>
-      </div>
+        <DisplayAllPosts posts={this.props.posts}  sort={(event)=>(this.props.dispatch(sortPosts(event.target.value)))}/>
+        <AddPost renderForm={this.renderForm}/>
+        {this.state.displayForm && (
+          <DisplayForm handleSubmit={this.handleSubmit}/>
+        )}
+   </div>
     )
   }
 }
 
-const mapStateToProps = (posts) => ({
-   posts: posts
-})
+const mapStateToProps = (posts) => {
+  return {
+    posts: posts,
+  }
+}
 
 export default connect(mapStateToProps)(RootView)
