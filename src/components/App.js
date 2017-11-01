@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import RootView from './RootView'
+import RootApp from './RootApp'
 import '../App.css'
 
 class App extends Component {
   render() {
     return (
       <div className="App">
-        <RootView/>
+        <RootApp/>
       </div>
     );
   }
