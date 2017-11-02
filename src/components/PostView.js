@@ -15,7 +15,7 @@ class DisplayPosts extends Component{
       {
         this.props.posts.map((post) => (
           <div key={post.id}>
-            <Link to={post.id}>
+            <Link to={`/post/${post.id}`}>
               <li>{post.title}</li>
             </Link>
             <ul>{post.body}</ul>
