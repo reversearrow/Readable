@@ -15,7 +15,7 @@ class DisplayPosts extends Component{
       {
         this.props.posts.map((post) => (
           <div key={post.id}>
-            <Link to={`/post/${post.id}`}>
+            <Link to={`/posts/${post.id}`} onClick={() => this.props.selectID(post.id)}>
               <li>{post.title}</li>
             </Link>
             <ul>{post.body}</ul>

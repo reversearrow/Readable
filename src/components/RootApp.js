@@ -4,9 +4,11 @@ import { Switch, Route, withRouter, Link } from 'react-router-dom'
 import { connect } from 'react-redux';
 import DisplayCategories from './CategoryView'
 import DisplayPosts from './PostView'
-import { sortPosts,filterPosts,addPost,addCategory } from '../actions/'
+import { sortPosts,filterByCategory ,addPost,addCategory,getSelectedPost, addComment } from '../actions/'
 import * as API from '../utils/api.js'
 import AddPosts from './AddPost'
+import PostDetailView from './PostDetailView'
+import sortBy from 'sort-by'
 
 class RootApp extends Component {
   componentDidMount(){
@@ -18,50 +20,73 @@ class RootApp extends Component {
     ))
   }
 
+  selectID = (id) => {
+    this.props.selectPost(id)
+  }
+
   sort = (event) => {
-    console.log(event.target.value)
     this.props.sortPosts(event.target.value)
   }
 
   render() {
     return (
-      <div>
-
+      <Switch>
       <Route exact path="/" render={()=>(
-          <div>
+        <div>
           <DisplayCategories categories={this.props.allCategories} filter={this.props.filter}/>
-          <DisplayPosts posts={this.props.posts} sort={this.sort}/>
+          <DisplayPosts posts={this.props.posts} sort={this.sort} selectID={this.selectID}/>
           <AddPosts add={this.props.addPost}/>
           </div>
         )}/>
-    </div>
+      <Route exact path="/posts/:id" render={()=>(
+          <div>
+            <PostDetailView id={this.props.location.pathname}/>
+          </div>
+          )}/>
+    </Switch>
     );
   }
 }
 
-const getFilteredPosts = (posts,filter) => {
-  console.log(filter)
+
+
+const getByPostsCategory = (posts,filter) => {
+  //console.log(filter)
   switch(filter){
     case 'SHOW_ALL':
-      return posts
+      return posts.filter((post) => post.deleted === false)
     default:
-      return posts.filter((post) => post.category === filter)
+      return posts.filter((post) => post.category === filter && post.deleted === false)
   }
 }
+
+const getPostsSorted = (posts, sort) => {
+  switch(sort){
+    case "BY_TIMESTAMP":
+      return posts.slice().sort(sortBy('-timestamp'))
+    case "BY_HIGHESTVOTE":
+      return posts.slice().sort(sortBy('-voteScore'))
+    default:
+      return posts.slice().sort(sortBy('-voteScore'))
+  }
+}
+
 
 const mapStateToProps = (state) => {
   return {
     allCategories: state.categories,
-    posts: getFilteredPosts(state.posts,state.categoriesFilter),
+    posts: getPostsSorted(getByPostsCategory(state.posts,state.categoriesFilter),state.postSortMethod)
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
     sortPosts: (data) => dispatch(sortPosts(data)),
-    filter: (data) => dispatch(filterPosts(data)),
+    filter: (data) => dispatch(filterByCategory(data)),
     addPost: (data) => dispatch(addPost(data)),
     addCategory: (data) => dispatch(addCategory(data)),
+    selectPost: (data) => dispatch(getSelectedPost(data)),
+    addComment: (data) => dispatch(addComment(data)),
   }
 }
 
