@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import '../App.css'
-import { Switch, Route, withRouter, Link } from 'react-router-dom'
+import { Switch, Route, withRouter } from 'react-router-dom'
 import { connect } from 'react-redux';
 import DisplayCategories from './CategoryView'
 import DisplayPosts from './PostView'
@@ -28,6 +28,10 @@ class RootApp extends Component {
     this.props.sortPosts(event.target.value)
   }
 
+  resetRootView = () => {
+    this.props.filter("SHOW_ALL")
+  }
+
   render() {
     return (
       <Switch>
@@ -36,7 +40,8 @@ class RootApp extends Component {
           <DisplayCategories categories={this.props.allCategories} filter={this.props.filter}/>
           <DisplayPosts posts={this.props.posts} sort={this.sort} selectID={this.selectID}/>
           <AddPosts add={this.props.addPost}/>
-          </div>
+          <button onClick={this.resetRootView}>Reset</button>
+        </div>
         )}/>
       <Route exact path="/posts/:id" render={()=>(
           <div>
@@ -47,8 +52,6 @@ class RootApp extends Component {
     );
   }
 }
-
-
 
 const getByPostsCategory = (posts,filter) => {
   //console.log(filter)
@@ -71,11 +74,10 @@ const getPostsSorted = (posts, sort) => {
   }
 }
 
-
 const mapStateToProps = (state) => {
   return {
     allCategories: state.categories,
-    posts: getPostsSorted(getByPostsCategory(state.posts,state.categoriesFilter),state.postSortMethod)
+    posts: getPostsSorted(getByPostsCategory(state.posts,state.categoriesFilter),state.postsSortBy)
   }
 }
 
@@ -89,7 +91,5 @@ const mapDispatchToProps = (dispatch) => {
     addComment: (data) => dispatch(addComment(data)),
   }
 }
-
-
 
 export default withRouter(connect(mapStateToProps,mapDispatchToProps)(RootApp))

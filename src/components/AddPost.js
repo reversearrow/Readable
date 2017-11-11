@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import * as API from '../utils/api.js'
-import { addPost} from '../actions/'
 import { v4 } from 'uuid'
 import serializeForm from 'form-serialize'
 

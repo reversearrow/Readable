@@ -3,21 +3,21 @@ import { connect } from 'react-redux';
 import * as API from '../utils/api.js'
 import { getSelectedPost, addComment, deleteComment, deletePost, commentParentDeleted, editPost, editComment, updatePostVotes, updateCommentVotes} from '../actions/'
 import sortBy from 'sort-by'
-import ClickToEdit from 'react-click-to-edit'
 import serializeForm from 'form-serialize'
 import { v4 } from 'uuid'
+import { RIETextArea } from 'riek'
+import _ from 'lodash'
 
 
 function AddComment(props){
   return (
-  <form  id="comment-data" onSubmit={props.handleSubmit}>
+  <form  className="form-inline" id="comment-data" onSubmit={props.handleSubmit}>
       <input type="text" name="body" placeholder="Type a comment..."></input>
       <input type="text" name="author" placeholder="author"></input>
       <input type="submit" value="Submit" />
   </form>
-)
+  )
 }
-
 
 class PostDetailView extends Component {
   getPath = (id) => {
@@ -46,18 +46,19 @@ class PostDetailView extends Component {
     ))
   }
 
-  editPostBody = ({postid,newValue}) => {
-    API.updatePost(postid,{'body':newValue}).then((data) =>
+  editPostBody = ({id,newValue}) => {
+    API.updatePost(id,{'timestamp':Date.now(),'body':newValue.body}).then((data) =>
     this.props.editPost({
       id: data.id,
       attribute: 'BODY',
-      value: data.body
+      value: data.body,
+      timestamp: data.timestamp,
     }))
   }
 
+
   editCommentBody = ({id,newValue}) => {
-    console.log(id,newValue)
-    API.updateComment(id,{'timestamp':Date.now(),'body':newValue}).then((data) =>
+    API.updateComment(id,{'timestamp':Date.now(),'body':newValue.body}).then((data) =>
     this.props.editComment({
       id: data.id,
       attribute: 'BODY',
@@ -108,25 +109,35 @@ class PostDetailView extends Component {
   }
 
   render(){
-    console.log(this.props)
     return(
       <div>
         {
           this.props.post.map((post) => (
             <div key={post.id}>
-              <h3>{post.title}</h3>
-              <ClickToEdit
-                endEditing={(value) => this.editPostBody({
-                  postid: post.id,
-                  newValue: value
-                })}
-                >
-                {post.body}
-                </ClickToEdit>
-              <h5> Author: {post.author} Votes:{post.voteScore} Time: {post.timestamp} </h5>
-              <a onClick={() => this.upVotePost(post.id)}>Upvote</a>
-              <a onClick={() => this.downVotePost(post.id)}>Downvote</a>
-              <a onClick={() => this.deletePost(post.id)}>Delete</a>
+              <div >
+                <h3 className="col-md-12"> {post.title} </h3>
+              </div>
+                <div className="row">
+                  <RIETextArea
+                    value={post.body}
+                    change={(value) => this.editPostBody({
+                      id: post.id,
+                      newValue: value
+                    })}
+                    propName='body'
+                    validate={_.isString}
+                    className='col-md-12' />
+                </div>
+              <div className="row">
+                  <div className="col-md-12"> Votes:{post.voteScore} </div>
+                  <div className="col-md-12"> Author: {post.author} </div>
+                  <div className="col-md-12"> Time: {post.timestamp} </div>
+              </div>
+              <div className="row">
+                <button className ="btn btn-primary"onClick={() => this.upVotePost(post.id)}>Upvote</button>
+                <button className="btn btn-warning" onClick={() => this.downVotePost(post.id)}>Downvote</button>
+                <button className="btn btn-danger" onClick={() => this.deletePost(post.id)}>Delete Post</button>
+              </div>
             </div>
           ))
         }
@@ -134,19 +145,20 @@ class PostDetailView extends Component {
         {
           this.props.comments.map((comment) => (
             <div key={comment.id}>
-            <ClickToEdit
-              endEditing={(value) => this.editCommentBody({
-                id: comment.id,
-                newValue: value
-              })}
-              >
-              {comment.body}
-              </ClickToEdit>
+              <RIETextArea
+                value={comment.body}
+                change={(value) => this.editCommentBody({
+                  id: comment.id,
+                  newValue: value
+                })}
+                propName='body'
+                validate={_.isString}
+                className='col-md-12' />
             <h5> Author: {comment.author} Votes:{comment.voteScore} Time: {comment.timestamp} </h5>
-              <a onClick={() => this.upVoteComment(comment.id)}>Upvote</a>
-              <a onClick={() => this.downVoteComment(comment.id)}>Downvote</a>
-            <button onClick={() => this.deleteComment(comment.id)}>Delete Comment</button>
-            </div>
+              <button className ="btn btn-primary"onClick={() => this.upVoteComment(comment.id)}>Upvote</button>
+              <button className="btn btn-warning" onClick={() => this.downVoteComment(comment.id)}>Downvote</button>
+              <button className="btn btn-danger" onClick={() => this.deleteComment(comment.id)}>Delete Comment</button>
+          </div>
           ))
         }
         <AddComment handleSubmit={this.handleSubmit}/>
@@ -158,7 +170,7 @@ class PostDetailView extends Component {
 const getByPostsId = (posts,filter) => {
   switch(filter){
     default:
-      return posts.filter((post) => post.id === filter && post.deleted == false)
+      return posts.filter((post) => post.id === filter && post.deleted === false)
   }
 }
 
@@ -178,7 +190,7 @@ const filterComments = (comments,postId) => {
 const mapStateToProps = (state) => {
   return {
     post: getByPostsId(state.posts,state.selectedPost),
-    comments: sortComments(filterComments(state.comments,state.selectedPost),state.commentsSortMethod),
+    comments: sortComments(filterComments(state.comments,state.selectedPost),state.commentsSortBy),
   }
 }
 

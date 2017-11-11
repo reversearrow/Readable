@@ -1,10 +1,5 @@
 import React, { Component } from 'react';
-import { Link, withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
-import DisplayPosts from './PostView';
-
-import { sortPosts,filterPosts,addPost,addCategory } from '../actions/'
-
+import { Link } from 'react-router-dom';
 
 function RenderCategories(props){
   if(props.categories){
@@ -31,7 +26,6 @@ class DisplayCategories extends Component{
     filterPath = (e) => {
       let regexp = "(react|redux|udacity)"
       let uri = e.target.innerText.match(regexp)
-        console.log(uri)
         if(uri){
           this.props.filter(uri[0])
         }
