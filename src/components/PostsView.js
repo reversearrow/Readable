@@ -138,7 +138,7 @@ class Posts extends Component {
       let category = this.props.match.params.category
       posts = this.getPostsSorted(this.getByPostsCategory(this.props.posts, category), this.props.postsSortBy)
     } else {
-      posts = this.getPostsSorted(this.props.posts, this.props.postsSortBy)
+      posts = this.getPostsSorted(this.getByPostsCategory(this.props.posts, 'SHOW_ALL'), this.props.postsSortBy)
     }
     return (
       <div>
