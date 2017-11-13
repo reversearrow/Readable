@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import { Switch, Route, withRouter, Link } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { addPost,addCategory, addComment, sortPosts } from '../actions/'
+import React, {Component} from 'react';
+import {Switch, Route, withRouter, Link} from 'react-router-dom';
+import {connect} from 'react-redux';
+import {addPost, addCategory, addComment, sortPosts} from '../actions/'
 import Posts from './PostsView'
 import Comments from './CommentsView'
 import * as API from '../utils/api.js'
@@ -9,22 +9,27 @@ import AddPosts from './AddPost'
 
 const DisplayCategory = (props) => {
   const category = props.category
-  return(
-        <Link to={`/${category.name}`} onClick={this.filterCategories} ><li>{category.name}</li></Link>
-    )
+  return (
+    <Link to={`/${category.name}`} onClick={this.filterCategories}>
+      <li>{category.name}</li>
+    </Link>
+  )
 }
 
 const DisplayAllCategories = (props) => {
-  return(
+  return (
     <div>
-    <h3> Categories </h3>
-    {
-      props.categories.map((category) => (
-        <div key={category.name}>
-          <DisplayCategory category={category}/>
-        </div>
-      ))
-    }
+      <h3>
+        Categories
+      </h3>
+      {props
+        .categories
+        .map((category) => (
+          <div key={category.name}>
+            <DisplayCategory category={category}/>
+          </div>
+        ))
+}
     </div>
   )
 }
@@ -32,68 +37,73 @@ const DisplayAllCategories = (props) => {
 const DisplayPostSort = (props) => {
   return (
     <div>
-    <h3> All Posts </h3>
-    <select onChange={props.sort}>
-      <option value="BY_HIGHESTVOTE">Highest Vote Score</option>
-      <option value="BY_TIMESTAMP">Time</option>
-    </select>
+      <h3>
+        All Posts
+      </h3>
+      <select onChange={props.sort}>
+        <option value="BY_HIGHESTVOTE">Highest Vote Score</option>
+        <option value="BY_TIMESTAMP">Time</option>
+      </select>
     </div>
   )
 }
 
 class RootView extends Component {
-  componentDidMount(){
-    API.getCatagories().then(catagories => catagories.map(
-      (category) => (this.props.addCategory(category))
-    ))
-    API.getAllPosts().then(data => data.map(
-      (d) => (this.props.addPost(d))
-    )).then(data => data.map(
-      (post) => API.getComments(post.id).then((comments) => (
-        comments.map((comment) => (
-           this.props.addComment(comment)
-        ))
-      ))
-    ))
+  componentDidMount() {
+    API
+      .getCatagories()
+      .then(catagories => catagories.map((category) => (this.props.addCategory(category))))
+    API
+      .getAllPosts()
+      .then(data => data.map((d) => (this.props.addPost(d))))
+      .then(data => data.map((post) => API.getComments(post.id).then((comments) => (comments.map((comment) => (this.props.addComment(comment)))))))
   }
 
   sort = (event) => {
-    this.props.sortPosts(event.target.value)
+    this
+      .props
+      .sortPosts(event.target.value)
   }
 
-  render(){
+  render() {
     return (
       <Switch>
-      <Route exact path="/" render={()=>(
-        <div>
-          <DisplayAllCategories categories={this.props.categories}/>
-          <DisplayPostSort sort={this.sort}/>
-          <Posts/>
-          <AddPosts add={this.props.addPost}/>
-        </div>
+        <Route
+          exact
+          path="/"
+          render={() => (
+          <div>
+            <DisplayAllCategories categories={this.props.categories}/>
+            <DisplayPostSort sort={this.sort}/>
+            <Posts/>
+            <AddPosts add={this.props.addPost}/>
+          </div>
         )}/>
-      <Route exact path="/:category" render={()=>(
-            <div>
-              <DisplayAllCategories categories={this.props.categories}/>
-              <Posts/>
-            </div>
-          )}/>
-      <Route exact path="/:category/:id" render={()=>(
-            <div>
-              <Posts/>
-              <Comments/>
-            </div>
-          )}/>
+        <Route
+          exact
+          path="/:category"
+          render={() => (
+          <div>
+            <DisplayAllCategories categories={this.props.categories}/>
+            <Posts/>
+          </div>
+        )}/>
+        <Route
+          exact
+          path="/:category/:id"
+          render={() => (
+          <div>
+            <Posts/>
+            <Comments/>
+          </div>
+        )}/>
       </Switch>
     )
   }
 }
 
 const mapStateToProps = (state) => {
-  return {
-    categories: state.categories,
-    posts: state.posts
-  }
+  return {categories: state.categories, posts: state.posts}
 }
 
 const mapDispatchToProps = (dispatch) => {
@@ -105,5 +115,4 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 
-
-export default withRouter(connect(mapStateToProps,mapDispatchToProps)(RootView))
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RootView))
