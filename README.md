@@ -12,8 +12,6 @@ NodeJs and NPM needs to be installed on the server or the machine running the ap
 
 1) You will need to install Backend server to run the App. Please download the server from "https://github.com/udacity/reactnd-project-readable-starter".
 
-Information about the API server and how to use it can be found here https://github.com/udacity/reactnd-project-readable-starter/blob/master/api-server/README.md.
-
 ```
 Install and start the API server
 $ cd api-server
