@@ -56,13 +56,6 @@ export function sortPosts(attribute){
   }
 }
 
-export function filterByCategory(category){
-  return {
-    type: SET_VISIBILITY_FILTER,
-    category,
-  }
-}
-
 
 export function getSelectedPost(id){
   return{
@@ -103,12 +96,13 @@ export function commentParentDeleted({id,parentDeleted}){
   }
 }
 
-export function editPost({id,attribute,value}){
+export function editPost({id,attribute,value,timestamp}){
   return {
     type: EDIT_POST,
     id: id,
     attribute: attribute,
     newValue: value,
+    timestamp: timestamp,
   }
 }
 

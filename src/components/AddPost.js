@@ -6,8 +6,8 @@ import serializeForm from 'form-serialize'
 
 function ShowAddPostButton(props){
   return(
-    <div>
-      <button onClick={props.renderForm}>AddPost</button>
+    <div className="row">
+      <button className ="btn btn-primary" onClick={props.renderForm}>AddPost</button>
     </div>
   )
 }

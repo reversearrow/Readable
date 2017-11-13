@@ -31,10 +31,10 @@ function posts(state=[], action){
       switch(action.attribute){
         case 'BODY':
           return state.map((post) => post.id === action.id ?
-            {...post, body: action.newValue} : post)
+            {...post, body: action.newValue, timestamp: action.timestamp} : post)
         case 'TITLE':
           return state.map((post) => post.id === action.id ?
-            {...post, title: action.newValue} : post)
+            {...post, title: action.newValue, timestamp: action.timestamp} : post)
         case 'VOTES':
           return state.map((post) => post.id === action.id ?
             {...post, voteScore: action.voteScore} : post)
