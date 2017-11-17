@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {Link, withRouter} from 'react-router-dom';
 import * as API from '../utils/api.js'
-import {getSelectedPost, deletePost, commentParentDeleted, editPost, updatePostVotes} from '../actions/'
+import {getSelectedPost, deletePost, upVotePost, downVotePost, commentParentDeleted, editPostTitle, editPostBody} from '../actions/posts'
 import sortBy from 'sort-by'
 import {RIETextArea} from 'riek'
 import _ from 'lodash'
@@ -11,12 +11,12 @@ const DisplayAllPosts = (props) => {
   return (props.posts.map((post) => <div key={post.id}>
     <RIETextArea
       value={post.title}
-      change={(value) => props.editPostTitle({id: post.id, newValue: value})}
+      change={(value) => props.editPostTitle({id: post.id, timestamp: Date.now(), newValue: value})}
       propName='title'
       validate={_.isString}
       className='col-lg-12'/> {props.showBody && (<RIETextArea
       value={post.body}
-      change={(value) => props.editPostBody({id: post.id, newValue: value})}
+      change={(value) => props.editPostBody({id: post.id, timestamp: Date.now(), newValue: value})}
       propName='body'
       validate={_.isString}
       className='col-lg-12'/>)}
@@ -50,43 +50,6 @@ class Posts extends Component {
     return comments.filter((comment) => comment.parentId === postid && comment.deleted === false).length
   }
 
-  upVotePost = (postid) => {
-    const upVote = {
-      'option': 'upVote'
-    }
-    API
-      .updatePostVote(postid, upVote)
-      .then((data) => (this.props.updatePostVotes({id: data.id, voteScore: data.voteScore})))
-  }
-
-  downVotePost = (postid) => {
-    const downVote = {
-      'option': 'downVote'
-    }
-    API
-      .updatePostVote(postid, downVote)
-      .then((data) => (this.props.updatePostVotes({id: data.id, voteScore: data.voteScore})))
-  }
-
-  deletePost = (id) => {
-    API
-      .deletePost(id)
-      .then((post) => (this.props.deletePost({id: post.id, deleted: post.deleted}) && this.props.commentParentDeleted({id: post.id, parentDeleted: post.deleted})))
-  }
-
-  editPostTitle = ({id, newValue}) => {
-    API.updatePost(id, {
-      'timestamp': Date.now(),
-      'title': newValue.title
-    }).then((data) => this.props.editPost({id: data.id, attribute: 'TITLE', value: data.title, timestamp: data.timestamp}))
-  }
-
-  editPostBody = ({id, newValue}) => {
-    API.updatePost(id, {
-      'timestamp': Date.now(),
-      'body': newValue.body
-    }).then((data) => this.props.editPost({id: data.id, attribute: 'BODY', value: data.body, timestamp: data.timestamp}))
-  }
 
   getNumOfComments = (postid) => {
     const comments = this.props.comments
@@ -147,11 +110,12 @@ class Posts extends Component {
           getNumOfComments={this.getNumOfComments}
           showBody={showBody}
           showMoreLink={showMoreLink}
-          upVotePost={this.upVotePost}
-          downVotePost={this.downVotePost}
-          deletePost={this.deletePost}
-          editPostTitle={this.editPostTitle}
-          editPostBody={this.editPostBody}/>)}
+          upVotePost={this.props.upVotePost}
+          downVotePost={this.props.downVotePost}
+          deletePost={this.props.deletePost}
+          editPostTitle={this.props.editPostTitle}
+          editPostBody={this.props.editPostBody}/>)
+        }
       </div>
     )
   }
@@ -164,10 +128,11 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     selectedPost: (data) => dispatch(getSelectedPost(data)),
-    editPost: (data) => dispatch(editPost(data)),
-    updatePostVotes: (data) => dispatch(updatePostVotes(data)),
     deletePost: (data) => dispatch(deletePost(data)),
-    commentParentDeleted: (data) => dispatch(commentParentDeleted(data))
+    downVotePost: (data) => dispatch(downVotePost(data)),
+    upVotePost: (data) => dispatch(upVotePost(data)),
+    editPostTitle: (data) => dispatch(editPostTitle(data)),
+    editPostBody: (data) => dispatch(editPostBody(data)),
   }
 }
 

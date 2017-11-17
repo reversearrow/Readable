@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
 import {Switch, Route, withRouter, Link} from 'react-router-dom';
 import {connect} from 'react-redux';
-import {addPost, addCategory, addComment, sortPosts} from '../actions/'
+import {addCategory} from '../actions/'
+import {receiveaddedComment} from '../actions/comments'
+import {receiveAddedPost, sortPosts, addNewPost} from '../actions/posts'
 import Posts from './PostsView'
 import Comments from './CommentsView'
 import * as API from '../utils/api.js'
@@ -76,7 +78,7 @@ class RootView extends Component {
             <DisplayAllCategories categories={this.props.categories}/>
             <DisplayPostSort sort={this.sort}/>
             <Posts/>
-            <AddPosts add={this.props.addPost}/>
+            <AddPosts add={this.props.addNewPost}/>
           </div>
         )}/>
         <Route
@@ -86,6 +88,7 @@ class RootView extends Component {
           <div>
             <DisplayAllCategories categories={this.props.categories}/>
             <Posts/>
+            <button><Link to="/">Root Page</Link></button>
           </div>
         )}/>
         <Route
@@ -95,6 +98,7 @@ class RootView extends Component {
           <div>
             <Posts/>
             <Comments/>
+            <button><Link to="/">Root Page</Link></button>
           </div>
         )}/>
       </Switch>
@@ -108,9 +112,10 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    addPost: (data) => dispatch(addPost(data)),
+    addPost: (data) => dispatch(receiveAddedPost(data)),
+    addNewPost: (data) => dispatch(addNewPost(data)),
     addCategory: (data) => dispatch(addCategory(data)),
-    addComment: (data) => dispatch(addComment(data)),
+    addComment: (data) => dispatch(receiveaddedComment(data)),
     sortPosts: (data) => dispatch(sortPosts(data))
   }
 }
