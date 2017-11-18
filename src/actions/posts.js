@@ -73,17 +73,17 @@ export const downVotePost = (postid) => dispatch => (
     .then((data) => dispatch(receivePostVotes({id: data.id, voteScore: data.voteScore})))
 );
 
-export const editPostBody = ({id, timestamp, newValue}) => dispatch => {
+export const editPostBody = ({id, body}) => dispatch => {
   API.updatePost(id, {
-    'timestamp': timestamp,
-    'body': newValue.body})
+    'timestamp': Date.now(),
+    'body': body})
     .then((data) => dispatch(receiveEditedPost({id: data.id, attribute: 'BODY', value: data.body, timestamp: data.timestamp})))
 }
 
-export const editPostTitle = ({id, timestamp, newValue}) => dispatch => {
+export const editPostTitle = ({id, title}) => dispatch => {
   API.updatePost(id, {
-    'timestamp': timestamp,
-    'title': newValue.title}).then((data) => dispatch(receiveEditedPost({id: data.id, attribute: 'TITLE', value: data.title, timestamp: data.timestamp})))
+    'timestamp': Date.now(),
+    'title': title}).then((data) => dispatch(receiveEditedPost({id: data.id, attribute: 'TITLE', value: data.title, timestamp: data.timestamp})))
 }
 
 export const deletePost = (id) => dispatch => {
