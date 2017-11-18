@@ -14,7 +14,8 @@ const DisplayAllPosts = (props) => {
       change={(value) => props.editPostTitle({id: post.id, timestamp: Date.now(), newValue: value})}
       propName='title'
       validate={_.isString}
-      className='col-lg-12'/> {props.showBody && (<RIETextArea
+      className='col-lg-12'/>
+    {props.showBody && (<RIETextArea
       value={post.body}
       change={(value) => props.editPostBody({id: post.id, timestamp: Date.now(), newValue: value})}
       propName='body'

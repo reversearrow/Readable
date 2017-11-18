@@ -48,9 +48,7 @@ class AddPosts extends Component {
     const values = serializeForm(event.target, {hash: true})
     values["timestamp"] = Date.now()
     values["id"] = uuidv4()
-    API
-      .addPost(values)
-      .then((d) => (this.props.add(d)))
+    this.props.add(values)
   }
 
   render() {

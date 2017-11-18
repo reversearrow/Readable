@@ -6,7 +6,7 @@ export const DELETE_COMMENT = 'DELETE_COMMENT'
 export const EDIT_COMMENT = 'EDIT_COMMENT'
 export const COMMENT_PARENT_DELETED = 'COMMENT_PARENT_DELETED'
 
-export function receiveaddedComment({
+export function receiveCommentToAdd({
   author,
   body,
   deleted,
@@ -77,15 +77,15 @@ export const downVoteComment = (id) => dispatch => {
     .then((data) => dispatch(receieveupdatedCommentVotes({id: data.id, voteScore: data.voteScore})))
 }
 
-export const editComment = ({id, newValue}) => dispatch => {
+export const editComment = ({id, body}) => dispatch => {
   API.updateComment(id, {
     'timestamp': Date.now(),
-    'body': newValue.body
+    'body': body
   }).then((data) => dispatch(receiveeditedComment({id: data.id, attribute: 'BODY', value: data.body, timestamp: data.timestamp})))
 }
 
 export const addNewComment = (values) => dispatch => {
   API
     .addComment(values)
-    .then((d) => dispatch(receiveaddedComment(d)))
+    .then((d) => dispatch(receiveCommentToAdd(d)))
 }

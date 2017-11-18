@@ -12,12 +12,14 @@ import _ from 'lodash'
 const DisplayAllComments = (props) => {
   return (props.comments.map((comment) => (
     <div key={comment.id}>
-      <RIETextArea
-        value={comment.body}
-        change={(value) => props.editComment({id: comment.id, newValue: value})}
-        propName='body'
-        validate={_.isString}
-        className='col-md-12'/>
+    {props.editCommentId === comment.id && props.displayForm ?
+          <EditComment
+            handleSubmit={props.handleSubmit}
+            body={props.body}
+            change={props.change}
+          />
+          : <p className="col-md-12">{comment.body}</p>
+        }
       <p className="col-md-12">
         Votes:{comment.voteScore}
       </p>
@@ -33,9 +35,13 @@ const DisplayAllComments = (props) => {
       <button
         className="btn btn-warning"
         onClick={() => props.downVoteComment(comment.id)}>Downvote</button>
+        <button
+          className="btn btn-primary"
+          onClick={() => props.editComment(comment.id)}>Edit Comment</button>
       <button
         className="btn btn-danger"
         onClick={() => props.deleteComment(comment.id)}>Delete Comment</button>
+
     </div>
   )))
 }
@@ -50,8 +56,36 @@ const AddComment = (props) => {
   )
 }
 
+const EditComment = (props) => {
+  return (
+    <form className="form-inline" id="comment-data" onSubmit={props.handleSubmit} >
+      <input type="text" name="body" placeholder="Edit comment..." value={props.body} onChange={props.change}></input>
+      <input type="submit" value="Submit"/>
+    </form>
+  )
+}
+
 class Comments extends Component {
-  handleSubmit = (event) => {
+  state = {
+    displayForm: false,
+    commentBody: '',
+    editCommentId: null
+  }
+
+  renderForm = (cid) => {
+    if (this.state.displayForm) {
+      this.setState({displayForm: false})
+    } else {
+      let body = this.filterCommentsById(this.props.comments,cid)[0].body
+      this.setState({
+        displayForm: true,
+        commentBody: body,
+        editCommentId: cid
+      })
+    }
+  }
+
+  handleNewComment = (event) => {
     event.preventDefault();
     const uuidv4 = v4
     const values = serializeForm(event.target, {hash: true})
@@ -59,6 +93,19 @@ class Comments extends Component {
     values["id"] = uuidv4()
     values["parentId"] = this.getPostById(this.props.posts, this.props.match.params.id)[0].id
     this.props.addComment(values)
+  }
+
+  handleEditedComment = (event) => {
+    event.preventDefault();
+    const values = serializeForm(event.target, {hash: true})
+    this.setState({
+      displayForm: false
+    })
+    this.props.editComment({id: this.state.editCommentId, body: values.body})
+  }
+
+  filterCommentsById = (comments, cid) => {
+    return comments.filter((comment) => comment.id === cid && comment.deleted === false && comment.parentDeleted === false)
   }
 
   filterCommentsByPost = (comments, postId) => {
@@ -73,6 +120,14 @@ class Comments extends Component {
     return comments
       .slice()
       .sort(sortBy('-voteScore'))
+  }
+
+
+  editComment = (event) => {
+    let value = event.target.value
+    this.setState({
+      commentBody: value
+    })
   }
 
   render() {
@@ -93,10 +148,17 @@ class Comments extends Component {
               editComment={this.editComment}
               upVoteComment={this.props.upVoteComment}
               downVoteComment={this.props.downVoteComment}
-              deleteComment={this.props.deleteComment}/>
-            <AddComment handleSubmit={this.handleSubmit}/>
+              editComment={this.renderForm}
+              deleteComment={this.props.deleteComment}
+              editCommentId={this.state.editCommentId}
+              handleSubmit={this.handleEditedComment}
+              body={this.state.commentBody}
+              change={this.editComment}
+              displayForm = {this.state.displayForm}
+              />
           </div>
         )}
+        <AddComment handleSubmit={this.handleNewComment}/>
       </div>
     )
   }

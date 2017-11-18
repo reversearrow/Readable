@@ -7,7 +7,7 @@ export const EDIT_POST = 'EDIT_POST'
 export const SET_SELECTED_POST = 'SET_SELECTED_POST'
 export const COMMENT_PARENT_DELETED = 'COMMENT_PARENT_DELETED'
 
-export function receiveAddedPost({
+export function receivePostToAdd({
   id,
   timestamp,
   title,
@@ -96,5 +96,5 @@ export const deletePost = (id) => dispatch => {
 export const addNewPost = (values) => dispatch => {
   API
     .addPost(values)
-    .then((d) => dispatch(receiveAddedPost(d)))
+    .then((d) => dispatch(receivePostToAdd(d)))
 }
