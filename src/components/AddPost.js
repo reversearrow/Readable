@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import * as API from '../utils/api.js'
 import {v4} from 'uuid'
 import serializeForm from 'form-serialize'
 
@@ -48,7 +47,9 @@ class AddPosts extends Component {
     const values = serializeForm(event.target, {hash: true})
     values["timestamp"] = Date.now()
     values["id"] = uuidv4()
-    this.props.add(values)
+    this
+      .props
+      .add(values)
   }
 
   render() {

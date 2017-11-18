@@ -2,10 +2,9 @@ import React, {Component} from 'react';
 import {Switch, Route, withRouter, Link} from 'react-router-dom';
 import {connect} from 'react-redux';
 import {initCategories, initPostsAndComments} from '../actions/'
-import {sortPosts, addNewPost} from '../actions/posts'
+import {sortPosts, addNewPost, setSelectedPost} from '../actions/posts'
 import Posts from './PostsView'
 import Comments from './CommentsView'
-import * as API from '../utils/api.js'
 import AddPosts from './AddPost'
 
 const DisplayCategory = (props) => {
@@ -30,7 +29,7 @@ const DisplayAllCategories = (props) => {
             <DisplayCategory category={category}/>
           </div>
         ))
-      }
+}
     </div>
   )
 }
@@ -51,8 +50,12 @@ const DisplayPostSort = (props) => {
 
 class RootView extends Component {
   componentDidMount() {
-    this.props.initCategories()
-    this.props.initPostsAndComments()
+    this
+      .props
+      .initCategories()
+    this
+      .props
+      .initPostsAndComments()
   }
 
   sort = (event) => {
@@ -82,7 +85,9 @@ class RootView extends Component {
           <div>
             <DisplayAllCategories categories={this.props.categories}/>
             <Posts/>
-            <button><Link to="/">Root Page</Link></button>
+            <button>
+              <Link to="/">Root Page</Link>
+            </button>
           </div>
         )}/>
         <Route
@@ -92,7 +97,9 @@ class RootView extends Component {
           <div>
             <Posts/>
             <Comments/>
-            <button><Link to="/">Root Page</Link></button>
+            <button>
+              <Link to="/">Root Page</Link>
+            </button>
           </div>
         )}/>
       </Switch>
@@ -109,7 +116,8 @@ const mapDispatchToProps = (dispatch) => {
     addNewPost: (data) => dispatch(addNewPost(data)),
     initPostsAndComments: () => dispatch(initPostsAndComments()),
     initCategories: () => dispatch(initCategories()),
-    sortPosts: (data) => dispatch(sortPosts(data))
+    sortPosts: (data) => dispatch(sortPosts(data)),
+    selectedPost: (data) => dispatch(setSelectedPost(data))
   }
 }
 

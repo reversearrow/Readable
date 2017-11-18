@@ -1,31 +1,33 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import {Link, withRouter} from 'react-router-dom';
-import * as API from '../utils/api.js'
-import {getSelectedPost, deletePost, upVotePost, downVotePost, commentParentDeleted, editPostTitle, editPostBody} from '../actions/posts'
+import {
+  setSelectedPost,
+  deletePost,
+  upVotePost,
+  downVotePost,
+  editPostTitle,
+  editPostBody
+} from '../actions/posts'
 import sortBy from 'sort-by'
-import {RIETextArea} from 'riek'
-import _ from 'lodash'
 import serializeForm from 'form-serialize'
 
 const DisplayAllPosts = (props) => {
   return (props.posts.map((post) => <div key={post.id}>
-  {props.editingPostId === post.id && props.displayTitleForm  ?
-        <EditPostTitle
+    {props.editingPostId === post.id && props.displayTitleForm
+      ? <EditPostTitle
           handleSubmit={props.handleEditedPostTitle}
           title={props.title}
-          changeTitle={props.changeTitle}
-        />
+          changeTitle={props.changeTitle}/>
       : <p className="col-md-12">{post.title}</p>
-  }
-  {props.editingPostId === post.id && props.displayBodyForm  ?
-        <EditPostBody
+}
+    {props.showBody && (props.editingPostId === post.id && props.displayBodyForm
+      ? <EditPostBody
           handleSubmit={props.handleEditedPostBody}
           body={props.body}
-          changeBody={props.changeBody}
-        />
-      : <p className="col-md-12">{post.body}</p>
-  }
+          changeBody={props.changeBody}/>
+      : <p className="col-md-12">{post.body}</p>)
+}
 
     <p className="col-md-12">
       Comments : {props.getNumOfComments(post.id)}</p>
@@ -47,16 +49,25 @@ const DisplayAllPosts = (props) => {
     )}
     <button className="btn btn-primary" onClick={() => props.upVotePost(post.id)}>Upvote</button>
     <button className="btn btn-warning" onClick={() => props.downVotePost(post.id)}>Downvote</button>
-    <button className="btn btn-primary" onClick={() => props.editPostTitle(post.id)}>Edit Title</button>
-    <button className="btn btn-primary" onClick={() => props.editPostBody(post.id)}>Edit Body</button>
+    <button
+      className="btn btn-primary"
+      onClick={() => props.renderTitleForm(post.id)}>Edit Title</button>
+    {props.showBody && <button
+      className="btn btn-primary"
+      onClick={() => props.renderBodyForm(post.id)}>Edit Body</button>
+}
     <button className="btn btn-danger" onClick={() => props.deletePost(post.id)}>Delete</button>
   </div>))
 }
 
 const EditPostTitle = (props) => {
   return (
-    <form className="form-inline" id="comment-data" onSubmit={props.handleSubmit} >
-      <input type="text" name="title" value={props.title} onChange={props.changeTitle}></input>
+    <form className="form-inline" id="comment-data" onSubmit={props.handleSubmit}>
+      <input
+        type="text"
+        name="title"
+        value={props.title}
+        onChange={props.changeTitle}></input>
       <input type="submit" value="Submit"/>
     </form>
   )
@@ -64,13 +75,12 @@ const EditPostTitle = (props) => {
 
 const EditPostBody = (props) => {
   return (
-    <form className="form-inline" id="comment-data" onSubmit={props.handleSubmit} >
-      <input type="text" name="body"  value={props.body} onChange={props.changeBody}></input>
+    <form className="form-inline" id="comment-data" onSubmit={props.handleSubmit}>
+      <input type="text" name="body" value={props.body} onChange={props.changeBody}></input>
       <input type="submit" value="Submit"/>
     </form>
   )
 }
-
 
 class Posts extends Component {
   state = {
@@ -85,12 +95,8 @@ class Posts extends Component {
     if (this.state.displayTitleForm) {
       this.setState({displayTitleForm: false})
     } else {
-      let title = this.getPostById(this.props.posts,postId)[0].title
-      this.setState({
-        displayTitleForm: true,
-        postTitle: title,
-        editingPostId: postId
-      })
+      let title = this.getPostById(this.props.posts, postId)[0].title
+      this.setState({displayTitleForm: true, postTitle: title, editingPostId: postId})
     }
   }
 
@@ -98,31 +104,27 @@ class Posts extends Component {
     if (this.state.displayBodyForm) {
       this.setState({displayBodyForm: false})
     } else {
-      let body = this.getPostById(this.props.posts,postId)[0].body
-      this.setState({
-        displayBodyForm: true,
-        postBody: body,
-        editingPostId: postId
-      })
+      let body = this.getPostById(this.props.posts, postId)[0].body
+      this.setState({displayBodyForm: true, postBody: body, editingPostId: postId})
     }
   }
 
   handleEditedPostTitle = (event) => {
     event.preventDefault();
     const values = serializeForm(event.target, {hash: true})
-    this.setState({
-      displayTitleForm: false
-    })
-    this.props.editPostTitle({id: this.state.editingPostId, title: values.title})
+    this.setState({displayTitleForm: false})
+    this
+      .props
+      .editPostTitle({id: this.state.editingPostId, title: values.title})
   }
 
   handleEditedPostBody = (event) => {
     event.preventDefault();
     const values = serializeForm(event.target, {hash: true})
-    this.setState({
-      displayBodyForm: false
-    })
-    this.props.editPostBody({id: this.state.editingPostId, body: values.body})
+    this.setState({displayBodyForm: false})
+    this
+      .props
+      .editPostBody({id: this.state.editingPostId, body: values.body})
   }
 
   getNumOfComments = (postid) => {
@@ -130,10 +132,19 @@ class Posts extends Component {
     return comments.filter((comment) => comment.parentId === postid && comment.deleted === false).length
   }
 
-
   getNumOfComments = (postid) => {
     const comments = this.props.comments
     return comments.filter((comment) => comment.parentId === postid && comment.deleted === false).length
+  }
+
+  editPostTitle = (event) => {
+    let value = event.target.value
+    this.setState({postTitle: value})
+  }
+
+  editPostBody = (event) => {
+    let value = event.target.value
+    this.setState({postBody: value})
   }
 
   getPostsSorted = (posts, sort) => {
@@ -167,20 +178,6 @@ class Posts extends Component {
     return posts.filter((post) => post.id === id && post.deleted === false)
   }
 
-  editPostTitle = (event) => {
-    let value = event.target.value
-    this.setState({
-      postTitle: value
-    })
-  }
-
-  editPostBody = (event) => {
-    let value = event.target.value
-    this.setState({
-      postBody: value
-    })
-  }
-
   render() {
     let posts = []
     let showBody = false
@@ -199,30 +196,28 @@ class Posts extends Component {
     }
     return (
       <div>
-        {posts.length > 0 ? (<DisplayAllPosts
-          posts={posts}
-          getNumOfComments={this.getNumOfComments}
-          showBody={showBody}
-          showMoreLink={showMoreLink}
-          upVotePost={this.props.upVotePost}
-          downVotePost={this.props.downVotePost}
-          editPostTitle={this.renderTitleForm}
-          editPostBody={this.renderBodyForm}
-          deletePost={this.props.deletePost}
-          displayTitleForm = {this.state.displayTitleForm}
-          displayBodyForm = {this.state.displayBodyForm}
-          editingPostId = {this.state.editingPostId}
-          title = {this.state.postTitle}
-          body = {this.state.postBody}
-          changeTitle = {this.editPostTitle}
-          changeBody = {this.editPostBody}
-          handleEditedPostTitle = {this.handleEditedPostTitle}
-          handleEditedPostBody = {this.handleEditedPostBody}
-        />) :
-        <div>
-          
-        </div>
-      }
+        {posts.length > 0
+          ? (<DisplayAllPosts
+            posts={posts}
+            getNumOfComments={this.getNumOfComments}
+            showBody={showBody}
+            showMoreLink={showMoreLink}
+            upVotePost={this.props.upVotePost}
+            downVotePost={this.props.downVotePost}
+            renderTitleForm={this.renderTitleForm}
+            renderBodyForm={this.renderBodyForm}
+            deletePost={this.props.deletePost}
+            displayTitleForm={this.state.displayTitleForm}
+            displayBodyForm={this.state.displayBodyForm}
+            editingPostId={this.state.editingPostId}
+            title={this.state.postTitle}
+            body={this.state.postBody}
+            changeTitle={this.editPostTitle}
+            changeBody={this.editPostBody}
+            handleEditedPostTitle={this.handleEditedPostTitle}
+            handleEditedPostBody={this.handleEditedPostBody}/>)
+          : <div></div>
+}
       </div>
     )
   }
@@ -234,12 +229,12 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    selectedPost: (data) => dispatch(getSelectedPost(data)),
+    selectedPost: (data) => dispatch(setSelectedPost(data)),
     deletePost: (data) => dispatch(deletePost(data)),
     downVotePost: (data) => dispatch(downVotePost(data)),
     upVotePost: (data) => dispatch(upVotePost(data)),
     editPostTitle: (data) => dispatch(editPostTitle(data)),
-    editPostBody: (data) => dispatch(editPostBody(data)),
+    editPostBody: (data) => dispatch(editPostBody(data))
   }
 }
 

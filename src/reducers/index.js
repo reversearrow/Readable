@@ -5,6 +5,7 @@ import categories from './categories.js'
 import categoriesFilter from './categoriesFilter.js'
 import postsSortBy from './postsSortBy'
 import commentsSortBy from './commentsSortBy'
+import selectedPost from './selectedPost'
 
 export default combineReducers({
   posts,
@@ -12,5 +13,6 @@ export default combineReducers({
   categories,
   categoriesFilter,
   comments,
-  commentsSortBy
+  commentsSortBy,
+  selectedPost
 })

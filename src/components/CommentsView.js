@@ -1,25 +1,21 @@
 import React, {Component} from 'react';
 import {connect} from 'react-redux';
-import * as API from '../utils/api.js'
 import {withRouter} from 'react-router-dom';
 import {addNewComment, deleteComment, editComment, upVoteComment, downVoteComment} from '../actions/comments'
 import serializeForm from 'form-serialize'
 import {v4} from 'uuid'
 import sortBy from 'sort-by'
-import {RIETextArea} from 'riek'
-import _ from 'lodash'
 
 const DisplayAllComments = (props) => {
   return (props.comments.map((comment) => (
     <div key={comment.id}>
-    {props.editingCommentId === comment.id && props.displayForm ?
-          <EditComment
+      {props.editingCommentId === comment.id && props.displayForm
+        ? <EditComment
             handleSubmit={props.handleSubmit}
             body={props.body}
-            change={props.change}
-          />
-          : <p className="col-md-12">{comment.body}</p>
-        }
+            change={props.change}/>
+        : <p className="col-md-12">{comment.body}</p>
+}
       <p className="col-md-12">
         Votes:{comment.voteScore}
       </p>
@@ -35,9 +31,9 @@ const DisplayAllComments = (props) => {
       <button
         className="btn btn-warning"
         onClick={() => props.downVoteComment(comment.id)}>Downvote</button>
-        <button
-          className="btn btn-primary"
-          onClick={() => props.editComment(comment.id)}>Edit</button>
+      <button
+        className="btn btn-primary"
+        onClick={() => props.renderForm(comment.id)}>Edit</button>
       <button
         className="btn btn-danger"
         onClick={() => props.deleteComment(comment.id)}>Delete</button>
@@ -58,8 +54,13 @@ const AddComment = (props) => {
 
 const EditComment = (props) => {
   return (
-    <form className="form-inline" id="comment-data" onSubmit={props.handleSubmit} >
-      <input type="text" name="body" placeholder="Edit comment..." value={props.body} onChange={props.change}></input>
+    <form className="form-inline" id="comment-data" onSubmit={props.handleSubmit}>
+      <input
+        type="text"
+        name="body"
+        placeholder="Edit comment..."
+        value={props.body}
+        onChange={props.change}></input>
       <input type="submit" value="Submit"/>
     </form>
   )
@@ -76,12 +77,8 @@ class Comments extends Component {
     if (this.state.displayForm) {
       this.setState({displayForm: false})
     } else {
-      let body = this.filterCommentsById(this.props.comments,commentId)[0].body
-      this.setState({
-        displayForm: true,
-        commentBody: body,
-        editingCommentId: commentId
-      })
+      let body = this.filterCommentsById(this.props.comments, commentId)[0].body
+      this.setState({displayForm: true, commentBody: body, editingCommentId: commentId})
     }
   }
 
@@ -92,16 +89,18 @@ class Comments extends Component {
     values["timestamp"] = Date.now()
     values["id"] = uuidv4()
     values["parentId"] = this.getPostById(this.props.posts, this.props.match.params.id)[0].id
-    this.props.addComment(values)
+    this
+      .props
+      .addComment(values)
   }
 
   handleEditedComment = (event) => {
     event.preventDefault();
     const values = serializeForm(event.target, {hash: true})
-    this.setState({
-      displayForm: false
-    })
-    this.props.editComment({id: this.state.editingCommentId, body: values.body})
+    this.setState({displayForm: false})
+    this
+      .props
+      .editComment({id: this.state.editingCommentId, body: values.body})
   }
 
   filterCommentsById = (comments, commentId) => {
@@ -122,12 +121,9 @@ class Comments extends Component {
       .sort(sortBy('-voteScore'))
   }
 
-
   editComment = (event) => {
     let value = event.target.value
-    this.setState({
-      commentBody: value
-    })
+    this.setState({commentBody: value})
   }
 
   render() {
@@ -138,30 +134,30 @@ class Comments extends Component {
     }
     return (
       <div className="row">
-        {post.length > 0 ? (
-          <div className="col-lg-12">
-            <h3>
-              Comments
-            </h3>
-            <DisplayAllComments
-              comments={comments}
-              editComment={this.editComment}
-              upVoteComment={this.props.upVoteComment}
-              downVoteComment={this.props.downVoteComment}
-              editComment={this.renderForm}
-              deleteComment={this.props.deleteComment}
-              editingCommentId={this.state.editingCommentId}
-              handleSubmit={this.handleEditedComment}
-              body={this.state.commentBody}
-              change={this.editComment}
-              displayForm = {this.state.displayForm}
-              />
-            <AddComment handleSubmit={this.handleNewComment}/>
-          </div>
-        ) :
-        <h1> Post Not Found </h1>
-
-      }
+        {post.length > 0
+          ? (
+            <div className="col-lg-12">
+              <h3>
+                Comments
+              </h3>
+              <DisplayAllComments
+                comments={comments}
+                upVoteComment={this.props.upVoteComment}
+                downVoteComment={this.props.downVoteComment}
+                renderForm={this.renderForm}
+                deleteComment={this.props.deleteComment}
+                editingCommentId={this.state.editingCommentId}
+                handleSubmit={this.handleEditedComment}
+                body={this.state.commentBody}
+                change={this.editComment}
+                displayForm={this.state.displayForm}/>
+              <AddComment handleSubmit={this.handleNewComment}/>
+            </div>
+          )
+          : <h1>
+            Post Not Found
+          </h1>
+}
 
       </div>
     )
@@ -178,7 +174,7 @@ const mapDispatchToProps = (dispatch) => {
     deleteComment: (data) => dispatch(deleteComment(data)),
     editComment: (data) => dispatch(editComment(data)),
     upVoteComment: (data) => dispatch(upVoteComment(data)),
-    downVoteComment: (data) => dispatch(downVoteComment(data)),
+    downVoteComment: (data) => dispatch(downVoteComment(data))
   }
 }
 

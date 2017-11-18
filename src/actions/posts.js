@@ -30,12 +30,11 @@ export function receivePostToAdd({
   }
 }
 
-
 export function sortPosts(attribute) {
   return {type: SET_POSTS_SORT, attribute}
 }
 
-export function getSelectedPost(id) {
+export function setSelectedPost(id) {
   return {type: SET_SELECTED_POST, id}
 }
 
@@ -47,43 +46,30 @@ export function receivecommentParentDeleted({id, parentDeleted}) {
   return {type: COMMENT_PARENT_DELETED, id, parentDeleted}
 }
 
-
 export function receiveEditedPost({id, attribute, value, timestamp}) {
   return {type: EDIT_POST, id: id, attribute: attribute, newValue: value, timestamp: timestamp}
 }
-
 
 export function receivePostVotes({id, voteScore}) {
   return {type: EDIT_POST, id: id, voteScore: voteScore, attribute: 'VOTES'}
 }
 
-export const upVotePost = (postid) => dispatch => (
-  API
-    .updatePostVote(postid, {
-      'option': 'upVote'
-    })
-    .then((data) => dispatch(receivePostVotes({id: data.id, voteScore: data.voteScore})))
-);
+export const upVotePost = (postid) => dispatch => (API.updatePostVote(postid, {'option': 'upVote'}).then((data) => dispatch(receivePostVotes({id: data.id, voteScore: data.voteScore}))));
 
-export const downVotePost = (postid) => dispatch => (
-  API
-    .updatePostVote(postid, {
-      'option': 'downVote'
-    })
-    .then((data) => dispatch(receivePostVotes({id: data.id, voteScore: data.voteScore})))
-);
+export const downVotePost = (postid) => dispatch => (API.updatePostVote(postid, {'option': 'downVote'}).then((data) => dispatch(receivePostVotes({id: data.id, voteScore: data.voteScore}))));
 
 export const editPostBody = ({id, body}) => dispatch => {
   API.updatePost(id, {
     'timestamp': Date.now(),
-    'body': body})
-    .then((data) => dispatch(receiveEditedPost({id: data.id, attribute: 'BODY', value: data.body, timestamp: data.timestamp})))
+    'body': body
+  }).then((data) => dispatch(receiveEditedPost({id: data.id, attribute: 'BODY', value: data.body, timestamp: data.timestamp})))
 }
 
 export const editPostTitle = ({id, title}) => dispatch => {
   API.updatePost(id, {
     'timestamp': Date.now(),
-    'title': title}).then((data) => dispatch(receiveEditedPost({id: data.id, attribute: 'TITLE', value: data.title, timestamp: data.timestamp})))
+    'title': title
+  }).then((data) => dispatch(receiveEditedPost({id: data.id, attribute: 'TITLE', value: data.title, timestamp: data.timestamp})))
 }
 
 export const deletePost = (id) => dispatch => {
